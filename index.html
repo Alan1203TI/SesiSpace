@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SESI SPACE 3D — Sistema Solar Interativo v10</title>
+  <title>SESI SPACE 3D — Sistema Solar Interativo v11</title>
   <meta name="theme-color" content="#020617" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -128,7 +128,10 @@
           </div>
           <div class="zoom-slider-box">
             <span class="zoom-mark">100%</span>
-            <input id="zoomSlider" class="zoom-slider-vertical" type="range" min="0" max="100" step="1" value="50" aria-label="Zoom do Sistema Solar de 0 a 100%">
+            <div id="zoomTrack" class="zoom-track" role="slider" tabindex="0" aria-label="Zoom do Sistema Solar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+              <div id="zoomFill" class="zoom-fill"></div>
+              <div id="zoomThumb" class="zoom-thumb"></div>
+            </div>
             <span class="zoom-mark">0%</span>
           </div>
           <button id="zoomResetBtn" class="zoom-reset-btn" type="button">50%</button>
@@ -200,7 +203,7 @@
     </section>
   </main>
 
-  <footer><span>SESI SPACE • Protótipo v10 • Slider de Zoom • Fases da Lua • WebGL 3D</span><span>Alan Camilo Rodrigues • Técnico de TI</span></footer>
+  <footer><span>SESI SPACE • Protótipo v11 • Zoom Touch Corrigido • Fases da Lua • WebGL 3D</span><span>Alan Camilo Rodrigues • Técnico de TI</span></footer>
   <script src="app.js"></script>
 </body>
 </html>

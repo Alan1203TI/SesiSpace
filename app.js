@@ -158,11 +158,13 @@ function distanceToZoomPercent(distance){
   return Math.round(Math.max(0,Math.min(1,p))*100);
 }
 function updateZoomUI(){
-  const slider=$('zoomSlider'),label=$('zoomValue');
-  if(!slider||!label)return;
+  const label=$('zoomValue'),track=$('zoomTrack'),fill=$('zoomFill'),thumb=$('zoomThumb');
+  if(!label)return;
   const pct=distanceToZoomPercent(camDist);
-  slider.value=pct;
   label.textContent=pct+'%';
+  if(track)track.setAttribute('aria-valuenow', String(pct));
+  if(fill)fill.style.height=`calc(${pct}% - 0px)`;
+  if(thumb)thumb.style.bottom=`calc(${pct}% + 10px)`;
 }
 function pointerDistance(){
   const pts=[...activePointers.values()];
@@ -277,21 +279,54 @@ canvas.addEventListener('wheel',e=>{
   updateZoomUI();
 },{passive:false});
 
-const zoomSlider=$('zoomSlider');
+const zoomTrack=$('zoomTrack');
 const zoomResetBtn=$('zoomResetBtn');
-if(zoomSlider){
-  zoomSlider.addEventListener('input',()=>{
-    camDist=zoomPercentToDistance(zoomSlider.value);
-    stopAutoTravelForManualCamera();
-    $('zoomValue').textContent=Math.round(Number(zoomSlider.value))+'%';
+
+function setZoomFromPercent(percent){
+  const pct=Math.max(0,Math.min(100,Number(percent)||0));
+  camDist=zoomPercentToDistance(pct);
+  stopAutoTravelForManualCamera();
+  updateZoomUI();
+}
+function setZoomFromTrackEvent(e){
+  if(!zoomTrack)return;
+  const rect=zoomTrack.getBoundingClientRect();
+  const raw=(rect.bottom - e.clientY) / rect.height;
+  const pct=Math.max(0,Math.min(1,raw))*100;
+  setZoomFromPercent(pct);
+}
+if(zoomTrack){
+  let zoomDragging=false;
+  zoomTrack.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    zoomDragging=true;
+    try{zoomTrack.setPointerCapture(e.pointerId)}catch(_){}
+    setZoomFromTrackEvent(e);
+  },{passive:false});
+  zoomTrack.addEventListener('pointermove',e=>{
+    if(!zoomDragging)return;
+    e.preventDefault();
+    setZoomFromTrackEvent(e);
+  },{passive:false});
+  function endZoomDrag(e){
+    if(!zoomDragging)return;
+    zoomDragging=false;
+    try{zoomTrack.releasePointerCapture(e.pointerId)}catch(_){}
+  }
+  zoomTrack.addEventListener('pointerup',endZoomDrag);
+  zoomTrack.addEventListener('pointercancel',endZoomDrag);
+  zoomTrack.addEventListener('keydown',e=>{
+    const current=distanceToZoomPercent(camDist);
+    if(e.key==='ArrowUp' || e.key==='ArrowRight'){ e.preventDefault(); setZoomFromPercent(current+2); }
+    if(e.key==='ArrowDown' || e.key==='ArrowLeft'){ e.preventDefault(); setZoomFromPercent(current-2); }
+    if(e.key==='Home'){ e.preventDefault(); setZoomFromPercent(0); }
+    if(e.key==='End'){ e.preventDefault(); setZoomFromPercent(100); }
   });
-  zoomSlider.addEventListener('pointerdown',e=>e.stopPropagation());
 }
 if(zoomResetBtn){
   zoomResetBtn.addEventListener('click',()=>{
-    camDist=zoomPercentToDistance(50);
-    stopAutoTravelForManualCamera();
-    updateZoomUI();
+    setZoomFromPercent(50);
   });
 }
 updateZoomUI();
