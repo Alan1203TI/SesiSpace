@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SESI SPACE 3D — Sistema Solar Interativo v6</title>
+  <meta name="theme-color" content="#020617" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <canvas id="stars2d"></canvas>
+
+  <div id="intro" class="intro">
+    <div class="intro-inner">
+      <div class="badge">EXPERIÊNCIA 3D INTERATIVA</div>
+      <div class="logo-mark">✦</div>
+      <h1>SESI <span>SPACE</span></h1>
+      <p>Explore primeiro as fases da Lua e depois viaje pelo Sistema Solar em 3D.</p>
+      <button id="startBtn" class="primary-btn"><span>INICIAR MISSÃO 3D</span><b>🚀</b></button>
+      <div class="intro-hint">Explore • Viaje • Descubra</div>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">✦</div>
+      <div><strong>SESI SPACE 3D</strong><small>Sistema Solar Interativo</small></div>
+    </div>
+    <div class="top-actions">
+      <button id="overviewBtn" class="ghost-btn">⌂ Visão geral</button>
+      <button id="pauseBtn" class="ghost-btn">⏸ Pausar</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-panel">
+      <div class="eyebrow">CENTRAL DE EXPLORAÇÃO • WEBGL 3D</div>
+      <h2>Viaje entre os planetas</h2>
+      <p>Selecione um planeta e a câmera fará a aproximação automaticamente. Arraste a cena para observar e use a roda do mouse para aproximar ou afastar.</p>
+    </section>
+
+    <section class="moon-lab" id="moonLab">
+      <div class="moon-lab-head">
+        <div>
+          <div class="eyebrow">LABORATÓRIO LUNAR</div>
+          <h3>Fases da Lua em movimento</h3>
+          <p>Acompanhe um mês lunar acelerado. A posição da Lua ao redor da Terra e a luz recebida do Sol determinam a fase que vemos daqui.</p>
+        </div>
+        <div class="moon-phase-badge"><span id="moonPhaseIcon">🌑</span><div><small>FASE ATUAL</small><b id="moonPhaseName">Lua Nova</b></div></div>
+      </div>
+
+      <div class="moon-lab-grid moon-lab-grid-v2">
+        <div class="moon-orbit-panel moon-orbit-panel-v2">
+          <div class="moon-sun-label">☀ <span>LUZ DO SOL</span><i></i></div>
+          <div class="moon-orbit-scene moon-orbit-scene-v2" id="moonOrbitScene">
+            <div class="moon-sun-disc moon-sun-disc-v2" aria-hidden="true"></div>
+            <div class="sun-beams-v2" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="moon-orbit-ring moon-orbit-ring-v2"></div>
+            <div class="earth-lab earth-lab-v2"><canvas id="earthLabCanvas" width="360" height="360" aria-label="Terra realista"></canvas><span>TERRA</span></div>
+
+            <button class="orbit-phase-node p0" data-day="0" aria-label="Lua Nova"><canvas width="90" height="90"></canvas><span>Nova</span></button>
+            <button class="orbit-phase-node p1" data-day="3.69" aria-label="Lua Crescente"><canvas width="90" height="90"></canvas><span>Crescente</span></button>
+            <button class="orbit-phase-node p2" data-day="7.38" aria-label="Quarto Crescente"><canvas width="90" height="90"></canvas><span>1º Quarto</span></button>
+            <button class="orbit-phase-node p3" data-day="11.07" aria-label="Gibosa Crescente"><canvas width="90" height="90"></canvas><span>Gibosa</span></button>
+            <button class="orbit-phase-node p4" data-day="14.77" aria-label="Lua Cheia"><canvas width="90" height="90"></canvas><span>Cheia</span></button>
+            <button class="orbit-phase-node p5" data-day="18.46" aria-label="Gibosa Minguante"><canvas width="90" height="90"></canvas><span>Gibosa</span></button>
+            <button class="orbit-phase-node p6" data-day="22.15" aria-label="Quarto Minguante"><canvas width="90" height="90"></canvas><span>3º Quarto</span></button>
+            <button class="orbit-phase-node p7" data-day="25.84" aria-label="Lua Minguante"><canvas width="90" height="90"></canvas><span>Minguante</span></button>
+
+            <div id="moonOrbiter" class="moon-orbiter moon-orbiter-v2"><canvas id="moonOrbitCanvas" width="112" height="112" aria-label="Lua atual em órbita"></canvas><em>AGORA</em></div>
+          </div>
+          <div class="orbit-caption">Visualização didática • tamanhos e distâncias não estão em escala</div>
+        </div>
+
+        <div class="moon-view-panel moon-view-panel-v2">
+          <div class="moon-view-label">COMO VEMOS DA TERRA</div>
+          <div class="phase-hero-wrap"><canvas id="moonPhaseCanvas" width="420" height="420" aria-label="Visualização realista da fase atual da Lua"></canvas></div>
+          <div class="phase-title-v2"><strong id="moonPhaseNameLarge">Lua Nova</strong><span id="moonDayLabel">Dia 0,0 de aproximadamente 29,5 dias</span></div>
+          <div class="illumination illumination-v2"><span>ILUMINAÇÃO VISÍVEL</span><div><i id="illuminationBar"></i></div><b id="illuminationValue">0%</b></div>
+          <div class="phase-tip" id="phaseTip">A Lua está aproximadamente entre a Terra e o Sol.</div>
+        </div>
+      </div>
+
+      <div class="moon-controls">
+        <button id="moonPlayBtn" class="mini-btn strong">⏸ PAUSAR TEMPO</button>
+        <label class="moon-slider-wrap"><span>DIA DO CICLO</span><input id="moonDaySlider" type="range" min="0" max="29.53" step="0.01" value="0"></label>
+        <label class="moon-speed"><span>VELOCIDADE</span><select id="moonSpeedSelect"><option value="0.15">Lenta</option><option value="0.45" selected>Normal</option><option value="1.2">Rápida</option><option value="3">Muito rápida</option></select></label>
+      </div>
+
+      <div class="moon-phase-strip moon-phase-strip-v2" id="moonPhaseStrip">
+        <button data-day="0"><canvas width="84" height="84"></canvas><b>Lua Nova</b></button>
+        <button data-day="3.69"><canvas width="84" height="84"></canvas><b>Crescente</b></button>
+        <button data-day="7.38"><canvas width="84" height="84"></canvas><b>Quarto crescente</b></button>
+        <button data-day="11.07"><canvas width="84" height="84"></canvas><b>Gibosa crescente</b></button>
+        <button data-day="14.77"><canvas width="84" height="84"></canvas><b>Lua Cheia</b></button>
+        <button data-day="18.46"><canvas width="84" height="84"></canvas><b>Gibosa minguante</b></button>
+        <button data-day="22.15"><canvas width="84" height="84"></canvas><b>Quarto minguante</b></button>
+        <button data-day="25.84"><canvas width="84" height="84"></canvas><b>Minguante</b></button>
+      </div>
+    </section>
+
+    <section class="viewer-shell">
+      <div class="viewer-toolbar">
+        <div class="status-dot"><i></i> MOTOR 3D ONLINE</div>
+        <div id="travelStatus" class="travel-status">VISÃO GERAL DO SISTEMA</div>
+      </div>
+      <div class="viewer-stage" id="viewerStage">
+        <canvas id="glCanvas" aria-label="Sistema Solar 3D interativo"></canvas>
+        <canvas id="warpCanvas" aria-hidden="true"></canvas>
+        <div id="warpLabel" class="warp-label"><b>HIPERVELOCIDADE</b><span>calculando rota...</span></div>
+        <div class="crosshair"><span></span></div>
+        <div class="hud hud-left">
+          <b id="hudTarget">TERRA</b>
+          <small>ALVO ATUAL</small>
+        </div>
+        <div class="hud hud-right">
+          <b id="hudDistance">149,6 M km</b>
+          <small>DISTÂNCIA DO SOL</small>
+        </div>
+        <div class="viewer-help">Arraste para girar • Scroll para zoom • Clique em um planeta • Luas e asteroides em 3D</div>
+      </div>
+      <div class="planet-selector" id="planetSelector">
+        <button data-body="sun"><span class="picon sun-c"></span>Sol</button>
+        <button data-body="mercury"><span class="picon mercury-c"></span>Mercúrio</button>
+        <button data-body="venus"><span class="picon venus-c"></span>Vênus</button>
+        <button data-body="earth" class="active"><span class="picon earth-c"></span>Terra</button>
+        <button data-body="mars"><span class="picon mars-c"></span>Marte</button>
+        <button data-body="jupiter"><span class="picon jupiter-c"></span>Júpiter</button>
+        <button data-body="saturn"><span class="picon saturn-c"></span>Saturno</button>
+        <button data-body="uranus"><span class="picon uranus-c"></span>Urano</button>
+        <button data-body="neptune"><span class="picon neptune-c"></span>Netuno</button>
+      </div>
+    </section>
+
+
+    <section class="info-grid">
+      <article class="info-card planet-card">
+        <div class="card-title"><span>ALVO SELECIONADO</span><b id="bodyType">PLANETA</b></div>
+        <div class="planet-showcase">
+          <div id="bigPlanet" class="big-planet earth-big"></div>
+          <div>
+            <div id="bodyOrder" class="small-index">03 / 08</div>
+            <h3 id="bodyName">Terra</h3>
+            <p id="bodyDesc">Nosso planeta natal, com oceanos de água líquida e uma atmosfera rica em nitrogênio e oxigênio.</p>
+            <div class="action-row">
+              <button id="travelBtn" class="mini-btn strong">🚀 VIAJAR ATÉ AQUI</button>
+              <button id="backBtn" class="mini-btn">↩ VOLTAR</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="data-grid">
+          <div><span>DIÂMETRO</span><b id="diameter">12.742 km</b></div>
+          <div><span>DISTÂNCIA DO SOL</span><b id="distance">149,6 milhões km</b></div>
+          <div><span>DURAÇÃO DO ANO</span><b id="year">365,25 dias</b></div>
+          <div><span>DURAÇÃO DO DIA</span><b id="day">23h 56min</b></div>
+          <div><span>TEMPERATURA MÉDIA</span><b id="temperature">15 °C</b></div>
+          <div><span>LUAS</span><b id="moons">1</b></div>
+        </div>
+      </article>
+
+      <article class="info-card tools-card">
+        <div class="card-title"><span>LABORATÓRIO</span><b>INTERATIVO</b></div>
+        <div class="tool-block">
+          <h4>⚖️ Seu peso em outros mundos</h4>
+          <p>Informe seu peso na Terra para comparar a força da gravidade.</p>
+          <div class="weight-row">
+            <input id="weightInput" type="number" min="1" max="500" value="70" aria-label="Peso em kg">
+            <span>kg</span>
+            <button id="calcWeight" class="mini-btn">CALCULAR</button>
+          </div>
+          <div id="weightResult" class="result-box">Na <b>Terra</b>, você pesaria aproximadamente <strong>70,0 kg</strong>.</div>
+        </div>
+        <div class="tool-block">
+          <h4>🪐 Comparador rápido</h4>
+          <p>Compare o planeta selecionado com outro.</p>
+          <select id="compareSelect">
+            <option value="mercury">Mercúrio</option><option value="venus">Vênus</option><option value="earth">Terra</option>
+            <option value="mars">Marte</option><option value="jupiter">Júpiter</option><option value="saturn">Saturno</option>
+            <option value="uranus">Urano</option><option value="neptune">Netuno</option>
+          </select>
+          <div id="compareResult" class="compare-result"></div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer><span>SESI SPACE • Protótipo v6 3D+ Lua</span><span>Fases da Lua • Terra/Lua realistas • WebGL 3D • asteroides • modo warp</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>
