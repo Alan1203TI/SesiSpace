@@ -135,11 +135,125 @@ function render(now){resizeGL();const dt=Math.min(.05,(now-last)/1000);last=now;
 requestAnimationFrame(render);
 
 // Controles de câmera e seleção direta no canvas
+// PC: arraste para girar + roda do mouse para zoom.
+// Tablet/celular: 1 dedo gira + pinça com 2 dedos controla o zoom.
+const activePointers=new Map();
 let down=false,lastX=0,lastY=0,moved=0;
-canvas.addEventListener('pointerdown',e=>{down=true;moved=0;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});
-canvas.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;moved+=Math.abs(dx)+Math.abs(dy);yaw-=dx*.006;pitch=Math.max(-1.15,Math.min(1.15,pitch+dy*.005));lastX=e.clientX;lastY=e.clientY});
-canvas.addEventListener('pointerup',e=>{down=false;if(moved<8){const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;let best=null,bd=1e9;for(const k of ORDER){const s=screenBodies[k];if(!s)continue;const dd=Math.hypot(x-s.x,y-s.y);if(dd<Math.max(16,s.r)&&dd<bd){bd=dd;best=k}}if(best)travelTo(best)}});
-canvas.addEventListener('wheel',e=>{e.preventDefault();camDist=Math.max(2.8,Math.min(70,camDist*(1+Math.sign(e.deltaY)*.09)));travel=null;setWarp(false)},{passive:false});
+let pinchStartDistance=0,pinchStartCamDist=0,pinchMoved=false;
+
+function clampCameraDistance(v){
+  return Math.max(2.8,Math.min(70,v));
+}
+function pointerDistance(){
+  const pts=[...activePointers.values()];
+  if(pts.length<2)return 0;
+  return Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);
+}
+function stopAutoTravelForManualCamera(){
+  travel=null;
+  following=null;
+  setWarp(false);
+}
+function selectPlanetAt(clientX,clientY){
+  const r=canvas.getBoundingClientRect(),x=clientX-r.left,y=clientY-r.top;
+  let best=null,bd=1e9;
+  for(const k of ORDER){
+    const s=screenBodies[k];
+    if(!s)continue;
+    const dd=Math.hypot(x-s.x,y-s.y);
+    if(dd<Math.max(18,s.r)&&dd<bd){bd=dd;best=k}
+  }
+  if(best)travelTo(best);
+}
+
+canvas.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='touch')e.preventDefault();
+  activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+  moved=0;
+  if(activePointers.size===1){
+    down=true;
+    pinchMoved=false;
+    lastX=e.clientX;
+    lastY=e.clientY;
+  }else if(activePointers.size===2){
+    down=false;
+    pinchMoved=true;
+    pinchStartDistance=Math.max(1,pointerDistance());
+    pinchStartCamDist=camDist;
+    stopAutoTravelForManualCamera();
+  }
+},{passive:false});
+
+canvas.addEventListener('pointermove',e=>{
+  if(!activePointers.has(e.pointerId))return;
+  if(e.pointerType==='touch')e.preventDefault();
+  activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+
+  if(activePointers.size>=2){
+    const dist=Math.max(1,pointerDistance());
+    if(!pinchStartDistance){
+      pinchStartDistance=dist;
+      pinchStartCamDist=camDist;
+    }
+    const scale=dist/pinchStartDistance;
+    camDist=clampCameraDistance(pinchStartCamDist/scale);
+    pinchMoved=true;
+    moved=999;
+    stopAutoTravelForManualCamera();
+    return;
+  }
+
+  if(!down)return;
+  const dx=e.clientX-lastX,dy=e.clientY-lastY;
+  moved+=Math.abs(dx)+Math.abs(dy);
+  if(Math.abs(dx)+Math.abs(dy)>0)stopAutoTravelForManualCamera();
+  yaw-=dx*.006;
+  pitch=Math.max(-1.15,Math.min(1.15,pitch+dy*.005));
+  lastX=e.clientX;
+  lastY=e.clientY;
+},{passive:false});
+
+function finishPointer(e,cancelled=false){
+  const wasSingle=activePointers.size===1;
+  activePointers.delete(e.pointerId);
+  try{canvas.releasePointerCapture(e.pointerId)}catch(_){}
+
+  if(activePointers.size<2){
+    pinchStartDistance=0;
+    pinchStartCamDist=camDist;
+  }
+
+  if(activePointers.size===1){
+    const remaining=[...activePointers.values()][0];
+    down=true;
+    lastX=remaining.x;
+    lastY=remaining.y;
+    moved=999; // evita clique acidental logo após uma pinça
+  }else{
+    down=false;
+  }
+
+  if(!cancelled && wasSingle && !pinchMoved && moved<8){
+    selectPlanetAt(e.clientX,e.clientY);
+  }
+
+  if(activePointers.size===0){
+    setTimeout(()=>{pinchMoved=false},0);
+  }
+}
+
+canvas.addEventListener('pointerup',e=>finishPointer(e,false));
+canvas.addEventListener('pointercancel',e=>finishPointer(e,true));
+canvas.addEventListener('lostpointercapture',e=>{
+  if(activePointers.has(e.pointerId))finishPointer(e,true);
+});
+
+canvas.addEventListener('wheel',e=>{
+  e.preventDefault();
+  camDist=clampCameraDistance(camDist*(1+Math.sign(e.deltaY)*.09));
+  stopAutoTravelForManualCamera();
+},{passive:false});
 
 
 // ---------- Laboratório de fases da Lua ----------
