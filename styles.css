@@ -90,3 +90,32 @@ footer{width:min(1240px,calc(100% - 28px));margin:auto;padding:0 0 28px;display:
   .topbar{padding-top:max(10px,env(safe-area-inset-top))}
   body{overscroll-behavior:none}
 }
+
+
+/* ===== v14: barra de rolagem branca para melhor contraste ===== */
+html{
+  scrollbar-color:#ffffff #0b1220;
+  scrollbar-width:auto;
+}
+
+body::-webkit-scrollbar,
+html::-webkit-scrollbar{
+  width:16px;
+}
+
+body::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track{
+  background:#0b1220;
+}
+
+body::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb{
+  background:#ffffff;
+  border-radius:999px;
+  border:3px solid #0b1220;
+}
+
+body::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover{
+  background:#ffffff;
+}
