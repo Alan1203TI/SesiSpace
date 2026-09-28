@@ -81,3 +81,12 @@ footer{width:min(1240px,calc(100% - 28px));margin:auto;padding:0 0 28px;display:
 
 
 
+
+.install-app-btn{
+  border-color:rgba(52,211,153,.30)!important;
+  color:#a7f3d0!important;
+}
+@media (display-mode: fullscreen), (display-mode: standalone){
+  .topbar{padding-top:max(10px,env(safe-area-inset-top))}
+  body{overscroll-behavior:none}
+}

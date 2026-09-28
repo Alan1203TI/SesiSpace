@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SESI SPACE 3D — Sistema Solar Interativo v12</title>
+  <title>SESI SPACE 3D — Sistema Solar Interativo v13 PWA</title>
   <meta name="theme-color" content="#020617" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <meta name="application-name" content="SESI SPACE" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SESI SPACE" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -27,6 +35,7 @@
       <div><strong>SESI SPACE 3D</strong><small>Sistema Solar Interativo</small></div>
     </div>
     <div class="top-actions">
+      <button id="installAppBtn" class="ghost-btn install-app-btn" type="button" hidden>⬇ Instalar app</button>
       <button id="overviewBtn" class="ghost-btn">⌂ Visão geral</button>
       <button id="pauseBtn" class="ghost-btn">⏸ Pausar</button>
     </div>
@@ -186,7 +195,47 @@
     </section>
   </main>
 
-  <footer><span>SESI SPACE • Protótipo v12 • Pinça Touch • Fases da Lua • WebGL 3D</span><span>Alan Camilo Rodrigues • Técnico de TI</span></footer>
+  <footer><span>SESI SPACE • v13 PWA • Pinça Touch • Fases da Lua • WebGL 3D</span><span>Alan Camilo Rodrigues • Técnico de TI</span></footer>
+
+  <script>
+    let deferredInstallPrompt = null;
+    const installBtn = document.getElementById('installAppBtn');
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      if (installBtn) installBtn.hidden = false;
+    });
+
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        try { await deferredInstallPrompt.userChoice; } catch (_) {}
+        deferredInstallPrompt = null;
+        installBtn.hidden = true;
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      if (installBtn) installBtn.hidden = true;
+      deferredInstallPrompt = null;
+    });
+
+    // Detecta execução instalada/standalone
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.matchMedia('(display-mode: fullscreen)').matches ||
+      window.navigator.standalone === true;
+
+    if (isStandalone && installBtn) installBtn.hidden = true;
+  </script>
   <script src="app.js"></script>
 </body>
 </html>
