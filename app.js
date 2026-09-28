@@ -132,7 +132,8 @@ function render(now){resizeGL();const dt=Math.min(.05,(now-last)/1000);last=now;
   const q=tx(vp,[p[0],p[1],p[2],1]);if(q[3]>0){const nx=q[0]/q[3],ny=q[1]/q[3];screenBodies[k]={x:(nx*.5+.5)*canvas.clientWidth,y:(-.5*ny+.5)*canvas.clientHeight,r:Math.max(11,d.size*18/camDist*22)}}
  }
  requestAnimationFrame(render)}
-requestAnimationFrame(render);
+updateZoomUI();
+  requestAnimationFrame(render);
 
 // Controles de câmera e seleção direta no canvas
 // PC: arraste para girar + roda do mouse para zoom.
@@ -143,6 +144,25 @@ let pinchStartDistance=0,pinchStartCamDist=0,pinchMoved=false;
 
 function clampCameraDistance(v){
   return Math.max(2.8,Math.min(70,v));
+}
+function zoomPercentToDistance(percent){
+  const p=Math.max(0,Math.min(100,Number(percent)||0))/100;
+  // Curva suave: 0% = visão bem afastada, 100% = aproximação máxima.
+  const minD=2.8,maxD=70;
+  return maxD*Math.pow(minD/maxD,p);
+}
+function distanceToZoomPercent(distance){
+  const minD=2.8,maxD=70;
+  const d=clampCameraDistance(distance);
+  const p=Math.log(d/maxD)/Math.log(minD/maxD);
+  return Math.round(Math.max(0,Math.min(1,p))*100);
+}
+function updateZoomUI(){
+  const slider=$('zoomSlider'),label=$('zoomValue');
+  if(!slider||!label)return;
+  const pct=distanceToZoomPercent(camDist);
+  slider.value=pct;
+  label.textContent=pct+'%';
 }
 function pointerDistance(){
   const pts=[...activePointers.values()];
@@ -198,6 +218,7 @@ canvas.addEventListener('pointermove',e=>{
     }
     const scale=dist/pinchStartDistance;
     camDist=clampCameraDistance(pinchStartCamDist/scale);
+    updateZoomUI();
     pinchMoved=true;
     moved=999;
     stopAutoTravelForManualCamera();
@@ -253,7 +274,27 @@ canvas.addEventListener('wheel',e=>{
   e.preventDefault();
   camDist=clampCameraDistance(camDist*(1+Math.sign(e.deltaY)*.09));
   stopAutoTravelForManualCamera();
+  updateZoomUI();
 },{passive:false});
+
+const zoomSlider=$('zoomSlider');
+const zoomResetBtn=$('zoomResetBtn');
+if(zoomSlider){
+  zoomSlider.addEventListener('input',()=>{
+    camDist=zoomPercentToDistance(zoomSlider.value);
+    stopAutoTravelForManualCamera();
+    $('zoomValue').textContent=Math.round(Number(zoomSlider.value))+'%';
+  });
+  zoomSlider.addEventListener('pointerdown',e=>e.stopPropagation());
+}
+if(zoomResetBtn){
+  zoomResetBtn.addEventListener('click',()=>{
+    camDist=zoomPercentToDistance(50);
+    stopAutoTravelForManualCamera();
+    updateZoomUI();
+  });
+}
+updateZoomUI();
 
 
 // ---------- Laboratório de fases da Lua ----------

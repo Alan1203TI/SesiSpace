@@ -78,3 +78,138 @@ footer{width:min(1240px,calc(100% - 28px));margin:auto;padding:0 0 28px;display:
 .moon-phase-strip-v2{gap:9px}.moon-phase-strip-v2 button{padding:9px 4px 10px;min-height:100px}.moon-phase-strip-v2 button canvas{display:block;width:54px;height:54px;margin:0 auto;filter:drop-shadow(0 0 7px rgba(225,235,244,.11))}.moon-phase-strip-v2 button b{font-size:8px;margin-top:4px;color:#7693a5}.moon-phase-strip-v2 button.active b{color:#e6fbff}.moon-phase-strip-v2 button.active canvas{filter:drop-shadow(0 0 10px rgba(103,232,249,.5))}
 @media(max-width:980px){.moon-lab-grid-v2{grid-template-columns:1fr}.moon-orbit-scene-v2{aspect-ratio:1.48/1}.moon-view-panel-v2{display:grid;grid-template-columns:minmax(180px,280px) 1fr;grid-template-areas:"label label" "moon title" "moon illum" "moon tip";column-gap:18px}.moon-view-panel-v2 .moon-view-label{grid-area:label}.phase-hero-wrap{grid-area:moon}.phase-title-v2{grid-area:title;align-self:end;text-align:left;margin:0}.illumination-v2{grid-area:illum}.phase-tip{grid-area:tip;align-self:start;text-align:left}}
 @media(max-width:680px){.moon-orbit-scene-v2{aspect-ratio:1.02/1}.earth-lab-v2 canvas{width:112px;height:112px}.moon-orbit-ring-v2{width:78%;height:58%}.orbit-phase-node{width:48px}.orbit-phase-node canvas{width:38px;height:38px}.orbit-phase-node span{display:none}.orbit-phase-node.p0{left:16%;top:50%}.orbit-phase-node.p1{left:29%;top:29%}.orbit-phase-node.p2{left:57%;top:20%}.orbit-phase-node.p3{left:84%;top:29%}.orbit-phase-node.p4{left:96%;top:50%}.orbit-phase-node.p5{left:84%;top:71%}.orbit-phase-node.p6{left:57%;top:80%}.orbit-phase-node.p7{left:29%;top:71%}.moon-view-panel-v2{display:flex}.moon-phase-strip-v2{grid-template-columns:repeat(4,1fr)}}
+
+
+/* ===== v10: controle de zoom dedicado para tablet/celular ===== */
+.viewer-stage-wrap{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 86px;
+  gap:12px;
+  align-items:stretch;
+}
+.zoom-control-panel{
+  border:1px solid rgba(125,211,252,.14);
+  background:linear-gradient(180deg,rgba(7,17,34,.9),rgba(4,10,24,.88));
+  border-radius:16px;
+  padding:12px 10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:100%;
+}
+.zoom-control-head{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  padding-bottom:10px;
+  margin-bottom:6px;
+  border-bottom:1px solid rgba(125,211,252,.09);
+}
+.zoom-control-head span{
+  color:#7f9bb1;
+  font-size:9px;
+  letter-spacing:.14em;
+  font-weight:800;
+}
+.zoom-control-head b{
+  color:#67e8f9;
+  font-size:13px;
+}
+.zoom-slider-box{
+  flex:1;
+  min-height:310px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+}
+.zoom-mark{
+  font-size:9px;
+  color:#658094;
+  line-height:1;
+}
+.zoom-slider-vertical{
+  appearance:none;
+  -webkit-appearance:none;
+  width:260px;
+  height:34px;
+  transform:rotate(-90deg);
+  transform-origin:center;
+  background:transparent;
+  touch-action:none;
+  margin:112px -112px;
+  cursor:pointer;
+}
+.zoom-slider-vertical::-webkit-slider-runnable-track{
+  height:9px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#0f3a56,#0ea5e9,#67e8f9);
+  border:1px solid rgba(103,232,249,.22);
+}
+.zoom-slider-vertical::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:#dffaff;
+  border:3px solid #22d3ee;
+  margin-top:-10px;
+  box-shadow:0 0 0 5px rgba(34,211,238,.10),0 0 16px rgba(34,211,238,.35);
+}
+.zoom-slider-vertical::-moz-range-track{
+  height:9px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#0f3a56,#0ea5e9,#67e8f9);
+  border:1px solid rgba(103,232,249,.22);
+}
+.zoom-slider-vertical::-moz-range-thumb{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:#dffaff;
+  border:3px solid #22d3ee;
+  box-shadow:0 0 0 5px rgba(34,211,238,.10),0 0 16px rgba(34,211,238,.35);
+}
+.zoom-reset-btn{
+  border:1px solid rgba(125,211,252,.17);
+  background:rgba(15,23,42,.78);
+  color:#9dc0d4;
+  border-radius:10px;
+  min-width:52px;
+  min-height:38px;
+  font-size:11px;
+  font-weight:800;
+}
+.zoom-reset-btn:active{
+  transform:scale(.97);
+}
+
+@media (max-width:760px){
+  .viewer-stage-wrap{
+    grid-template-columns:minmax(0,1fr) 74px;
+    gap:8px;
+  }
+  .zoom-control-panel{
+    padding:9px 7px;
+    border-radius:13px;
+  }
+  .zoom-slider-box{
+    min-height:250px;
+  }
+  .zoom-slider-vertical{
+    width:215px;
+    margin:90px -90px;
+  }
+  .zoom-control-head{
+    flex-direction:column;
+    gap:2px;
+  }
+  .zoom-control-head b{
+    font-size:12px;
+  }
+}

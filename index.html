@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SESI SPACE 3D — Sistema Solar Interativo v9</title>
+  <title>SESI SPACE 3D — Sistema Solar Interativo v10</title>
   <meta name="theme-color" content="#020617" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -104,9 +104,10 @@
         <div class="status-dot"><i></i> MOTOR 3D ONLINE</div>
         <div id="travelStatus" class="travel-status">VISÃO GERAL DO SISTEMA</div>
       </div>
-      <div class="viewer-stage" id="viewerStage">
-        <canvas id="glCanvas" aria-label="Sistema Solar 3D interativo"></canvas>
-        <canvas id="warpCanvas" aria-hidden="true"></canvas>
+      <div class="viewer-stage-wrap">
+        <div class="viewer-stage" id="viewerStage">
+          <canvas id="glCanvas" aria-label="Sistema Solar 3D interativo"></canvas>
+          <canvas id="warpCanvas" aria-hidden="true"></canvas>
         <div id="warpLabel" class="warp-label"><b>HIPERVELOCIDADE</b><span>calculando rota...</span></div>
         <div class="crosshair"><span></span></div>
         <div class="hud hud-left">
@@ -117,7 +118,21 @@
           <b id="hudDistance">149,6 M km</b>
           <small>DISTÂNCIA DO SOL</small>
         </div>
-        <div class="viewer-help">1 dedo: girar • 2 dedos: zoom • PC: scroll para zoom • Toque em um planeta</div>
+          <div class="viewer-help">1 dedo: girar • 2 dedos: zoom • PC: scroll para zoom • Toque em um planeta</div>
+        </div>
+
+        <aside class="zoom-control-panel" aria-label="Controle de zoom">
+          <div class="zoom-control-head">
+            <span>ZOOM</span>
+            <b id="zoomValue">50%</b>
+          </div>
+          <div class="zoom-slider-box">
+            <span class="zoom-mark">100%</span>
+            <input id="zoomSlider" class="zoom-slider-vertical" type="range" min="0" max="100" step="1" value="50" aria-label="Zoom do Sistema Solar de 0 a 100%">
+            <span class="zoom-mark">0%</span>
+          </div>
+          <button id="zoomResetBtn" class="zoom-reset-btn" type="button">50%</button>
+        </aside>
       </div>
       <div class="planet-selector" id="planetSelector">
         <button data-body="sun"><span class="picon sun-c"></span>Sol</button>
@@ -185,7 +200,7 @@
     </section>
   </main>
 
-  <footer><span>SESI SPACE • Protótipo v9 • Touch/Pince Zoom • Fases da Lua • WebGL 3D</span><span>Alan Camilo Rodrigues • Técnico de TI</span></footer>
+  <footer><span>SESI SPACE • Protótipo v10 • Slider de Zoom • Fases da Lua • WebGL 3D</span><span>Alan Camilo Rodrigues • Técnico de TI</span></footer>
   <script src="app.js"></script>
 </body>
 </html>
